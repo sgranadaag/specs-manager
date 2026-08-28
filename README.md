@@ -68,6 +68,9 @@ your-repo/
 │   ├── hooks/
 │   │   └── gate.sh                   # enforcement, per repo
 │   └── settings.json
+├── docs/
+│   └── payment-retry-prd.md           # raw source material — PRDs, tickets, mockups;
+│                                       # no required shape, this is /spec-new's input
 └── specs/
     └── 004-payment-retry/
         ├── requirements.md            # shared across every repo in the feature
@@ -81,7 +84,9 @@ your-repo/
 ```
 
 `specs/` lives at the repo root, not hidden inside `.claude/` — these are
-engineering artifacts and should be as visible as `src/`.
+engineering artifacts and should be as visible as `src/`. `docs/` sits
+next to it for the raw material specs get built from — see `docs/README.md`
+and `specs/README.md` for what belongs in each.
 
 ## The enforcement hook
 
@@ -102,7 +107,7 @@ for other projects live. To adopt it elsewhere:
 
 1. Copy `CLAUDE.md` (or merge its pointer line into an existing one) and
    the entire `.claude/` directory into the target repo.
-2. Create an empty `specs/` directory there.
+2. Create empty `specs/` and `docs/` directories there.
 3. `chmod +x .claude/hooks/gate.sh` (permissions don't survive a plain
    file copy).
 4. Adjust `gate.sh`'s guarded path (`src/`) if the target repo's source
@@ -118,8 +123,9 @@ for other projects live. To adopt it elsewhere:
 /spec-new short description of the feature
 ```
 
-If you already have a source document — a PRD, a ticket, mockups — point
-`/spec-new` at it (path, paste, or attachment) and it reads that first,
+If you already have a source document — a PRD, a ticket, mockups — drop
+it in `docs/` (not required, but keeps it around for traceability) and
+point `/spec-new` at it (path, paste, or attachment); it reads that first,
 extracting whatever it can before asking anything. Either way, it then
 confirms which repositories are involved and each one's role, and
 interviews you about scope, failure modes, and acceptance criteria for

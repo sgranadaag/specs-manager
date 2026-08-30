@@ -44,13 +44,19 @@ For each unchecked task in this repo's task file, in order:
 4. Implement the task and nothing beyond it. Resist the urge to
    "also fix" adjacent things you notice; note them instead.
 5. Run the test suite. If it fails, fix it before moving on.
-6. Check the box in this repo's tasks file and commit with the task ID in
-   the message: `feat(payment): T1 add PaymentRetryPolicy [REQ-2.1,2.3]`
+6. Check the box in this repo's tasks file (`[x] T1 — ...`). **Do not
+   stage or commit anything.** Leave the change sitting unstaged in the
+   working tree — the user reviews the actual diff before it becomes a
+   commit, not after. Committing is a separate, explicit step: `/spec-commit`.
 7. Report progress to the user and continue.
 
-When every task in this repo's file is checked off, set this repo's
-`.status` to `done`. That says nothing about whether other repos involved
-in the same feature are done — check their own status files, or ask.
+When every task in this repo's file is checked off, tell the user
+implementation is complete for this repo and that `/spec-commit` is the
+next step whenever they're ready — after reviewing the diff themselves.
+Do not set this repo's `.status` to `done` here; `/spec-commit` does that
+once everything is actually committed. That status says nothing about
+whether other repos involved in the same feature are done — check their
+own status files, or ask.
 
 ## The escape hatch — this is the important part
 

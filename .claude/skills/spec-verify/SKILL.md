@@ -10,6 +10,15 @@ allowed-tools: Read, Glob, Grep, Bash
 
 # Verify implementation against spec
 
+## Precondition
+
+Determine which repo this is and check
+`specs/<NNN>-<slug>/tasks/<repo>.status`. It must be `released` — every
+task committed (`/spec-commit`) and the branch actually promoted and
+pushed through dev/qa/master (`/spec-release`). If it's `done` or
+earlier, stop and say so: verifying work that hasn't shipped yet isn't
+meaningful in this workflow.
+
 Spawn parallel subagents so each check runs in isolated context:
 
 1. **Coverage** — for every `REQ-` ID in requirements.md, find the test

@@ -32,3 +32,15 @@ it to match that feature's eventual `specs/<NNN>-<slug>/` slug makes the
 link obvious at a glance, but this isn't enforced — use whatever name the
 source material already has (an exported ticket ID, a PRD title) when
 that's clearer.
+
+Two kinds of content end up here, kept apart by location:
+
+- **Feature/client-specific source material** — a PRD, a code dump, a set
+  of facts for one particular build — goes in a subfolder, e.g.
+  `docs/<client>/`.
+- **Cross-feature reference material** — a generic guide distilled from a
+  prior build, meant to be reused across many future features rather than
+  describing one of them — lives directly at the `docs/` root, e.g.
+  `docs/context.md`. Keep this kind agnostic: no names of
+  specific clients/features, just the shared system/platform facts and
+  lessons that apply regardless of which one comes next.

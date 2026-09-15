@@ -1,12 +1,14 @@
 ---
 name: spec-new
 description: >
-  Start a new feature spec. Creates specs/<NNN>-<slug>/requirements.md by
-  reading any source document the user provides, asking which
-  repositories are involved and each one's role, and interviewing the
-  user about scope, behavior, and acceptance criteria. Use this whenever
-  the user wants to start a new feature, describes something they want
-  built, or says "spec this out" — even if they don't use the word "spec".
+  Start a new feature spec in this repository. Creates
+  specs/<NNN>-<slug>/requirements.md by reading any source document the
+  user provides, scoping the feature to what this repository has to do,
+  identifying its external dependencies and any contract it must agree with
+  another repository, and interviewing the user about scope, behavior, and
+  acceptance criteria. Use this whenever the user wants to start a new
+  feature, describes something they want built, or says "spec this out" —
+  even if they don't use the word "spec".
 argument-hint: short feature description, or a path/paste of a source document
 disable-model-invocation: false
 allowed-tools: Read, Write, Glob, Grep, Bash(git status:*), Bash(ls:*)
@@ -25,9 +27,10 @@ Sometimes this starts from nothing but a conversation. Sometimes the user
 already has a document — a requirement writeup, a ticket, a PRD, mockups —
 that's the first source of truth. Check for one before assuming there
 isn't: a file path or pasted long-form content in $ARGUMENTS, an attached
-file, or something the user references ("the doc I sent", "see the
-mockups"). If images are involved (mockups, screenshots, diagrams), read
-those too — Read handles images directly.
+file, something the user references ("the doc I sent", "see the
+mockups"), or a matching file under `specs/source-material/` (see its
+`README.md`). If images are involved (mockups, screenshots, diagrams),
+read those too — Read handles images directly.
 
 If a document exists, read it in full and extract as much as it actually
 contains before asking anything:
@@ -36,6 +39,7 @@ contains before asking anything:
 - in-scope / out-of-scope statements
 - acceptance criteria and conditions, as given
 - mockups or visual references, and what they show
+- the repositories, services and systems it names
 - domain vocabulary and constraints already stated
 
 Do not silently fill gaps the document leaves open — that's what Step 4
@@ -47,24 +51,34 @@ requirements.md.
 If there is no source document, this step is a no-op — proceed to Step 3
 with nothing pre-filled.
 
-## Step 3 — Repositories and roles
+## Step 3 — Scope it to this repository
 
-Before or alongside the interview, ask which repositories this feature
-involves and what each one's role is (e.g. "payment-service: owns retry
-logic and persistence", "checkout-frontend: shows retry status to the
-user"). Features here are frequently microservice-shaped; guessing this
-from a single codebase produces a design that's wrong about its own
-boundaries before anything else is even considered.
+A spec describes what **this** repository has to do. Before or alongside
+the interview, establish:
 
-If the source document from Step 2 already names services or systems
-involved, propose that list back to the user for confirmation rather
-than asking from scratch — but still confirm; a document written before
-implementation is not guaranteed to name every repo that ends up
-involved.
+- **What this repository owns** in the feature — the part of the problem
+  that is built here.
+- **Its external dependencies** — every system outside this repository the
+  feature relies on (another service, an API, a shared library, a
+  third-party provider) and what it expects of each. Classify each one:
+  - **relied on as is** — an interface that already exists and this feature
+    doesn't change;
+  - **a contract to agree** — an interface this feature defines or changes
+    together with another repository: an endpoint one side adds and the
+    other calls, a field, an event. Note which repository it is, which side
+    exposes the interface, and whether that repository already has a spec
+    for its part — if it does, the contract file in that spec is the
+    starting point `/spec-design` builds on.
 
-Record the answer — it drives Step 5's codebase exploration and becomes
-the "Repositories involved" section of requirements.md, which
-`/spec-design` starts from when it tags each component with its repo.
+If the source document describes a feature spanning several repositories,
+propose back which part belongs here and which parts are external, and
+confirm it — a document written before implementation is not guaranteed to
+draw that line where the code will. The parts that belong to other
+repositories are specced there, with their own copy of this workflow; here
+they are only dependencies.
+
+Record the answer — it becomes the "External dependencies" section of
+requirements.md, which `/spec-design` starts from.
 
 ## Step 4 — Interview BEFORE writing
 
@@ -78,30 +92,33 @@ note what you're skipping and why so the user can correct it):
 - Who uses this and what problem does it solve for them?
 - What is explicitly OUT of scope?
 - What are the failure modes — what happens when the input is bad, the
-  network drops, the dependency is down?
+  network drops, an external dependency is down or answers something
+  unexpected?
 - What are the observable acceptance criteria? (If you cannot write a
-  test from a criterion, it is not a criterion.)
-- Are there existing patterns in the relevant repo(s) this must follow?
+  concrete check from a criterion, it is not a criterion.)
+- Are there existing patterns in this repository this must follow?
 
 If an answer is vague, ask again. A vague requirement produces confidently
 wrong code with full traceability, which is worse than no spec.
 
-## Step 5 — Explore the codebase(s)
+## Step 5 — Explore this repository
 
-Spawn a subagent per repo named in Step 3 to map the parts of that
-codebase this feature touches: existing modules, patterns, and naming
-conventions. Have each return a summary, not file contents — this keeps
-the main context clean.
+Map the parts of this repository the feature touches: existing modules,
+patterns, naming conventions, and the rules its `CLAUDE.md` points at. When
+the feature touches several areas, spawn a subagent per area and have each
+return a summary, not file contents — this keeps the main context clean.
 
 ## Step 6 — Write requirements.md
 
 Use `.claude/templates/requirements.md`. Rules:
 
-- Include a "Repositories involved" section listing each repo from
-  Step 3 and its role, in plain terms — not a technical design, just
-  what part of the problem it owns.
+- Include an "External dependencies" section: each dependency from Step 3,
+  what this feature expects of it, and its kind — relied on as is, or a
+  contract to agree with a named repository. Write "none" when there are
+  none.
 - Numbered, stable IDs: `REQ-1.1`, `REQ-1.2`, …
-- Each requirement is testable and about observable behavior.
+- Each requirement is verifiable, about observable behavior, and about
+  this repository — never a requirement another repository has to meet.
 - NO implementation detail. "Retries failed payments" is a requirement.
   "Uses exponential backoff with jitter" is a design decision — it goes
   in design.md.
@@ -110,6 +127,8 @@ Use `.claude/templates/requirements.md`. Rules:
 - Include an "Open questions" section for anything unresolved — including
   anything the source document left ambiguous. Do not paper over
   uncertainty with a plausible-sounding sentence.
+- If the spec was built from a file in `specs/source-material/`, name
+  that file in the summary so the link back to its origin isn't lost.
 
 ## Step 7 — Stop
 

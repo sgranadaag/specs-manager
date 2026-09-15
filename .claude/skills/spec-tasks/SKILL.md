@@ -1,13 +1,11 @@
 ---
 name: spec-tasks
 description: >
-  Decompose an approved design into an ordered, checkable task list, split
-  per repository. Many features here are microservice-shaped and touch
-  several repos — this writes one tasks file per repo touched
-  (specs/<NNN>-<slug>/tasks/<repo>.md), each traced to requirement IDs, so
-  each repo's implementation can proceed and be gated independently. Use
-  after the design is approved, or when the user asks to break work down
-  or plan implementation order.
+  Decompose an approved design into an ordered, checkable task list for
+  this repository (specs/<NNN>-<slug>/tasks.md), each task traced to
+  requirement IDs — and to the contract and revision it implements, when it
+  connects this repository to another. Use after the design is approved,
+  or when the user asks to break work down or plan implementation order.
 allowed-tools: Read, Write, Glob, Grep
 ---
 
@@ -17,60 +15,60 @@ allowed-tools: Read, Write, Glob, Grep
 
 `.status` must be `design`.
 
-## Step 1 — Identify the repos involved
+## Step 1 — Check the contracts are in sync
 
-Read `design.md`'s component breakdown table. Every component must name
-the repository it lives in — if any component is missing one, STOP and
-ask; do not guess which repo a component belongs to.
+For every file in the spec's `contracts/`, confirm this copy is identical
+to every counterpart's: compare the files when the counterpart repository
+is available on this machine, and ask the user to confirm it when it
+isn't. If any copy differs, or a counterpart has no copy yet, STOP and say
+which — the two sides would be building against different contracts, and
+tasks written now would plan a disagreement.
 
-Collect the distinct set of repos. A single-repo feature is just the
-degenerate case of this (one repo, one task file) — always go through
-this step, don't special-case it away.
+A spec with no `contracts/` skips this step.
 
-## Step 2 — Write one tasks file per repo
+## Step 2 — Write tasks.md
 
-For each repo, create `specs/<NNN>-<slug>/tasks/<repo>.md` containing
-only the tasks whose work happens in that repo. Cross-repo ordering
-(e.g. "the API contract in `payment-service` must land before
-`checkout-frontend` can consume it") is expressed via `Depends on:`
-referencing the other repo's task ID, qualified with the repo name —
-`Depends on: payment-service#T2`.
+Read `design.md` and write `specs/<NNN>-<slug>/tasks.md` from
+`.claude/templates/tasks.md`.
 
 ## Rules for a good task
 
 - **Independently verifiable.** Each task ends in a state where something
-  can be run or tested. "Add the User model" is a task. "Set up the
+  can be run or checked. "Add the User model" is a task. "Set up the
   backend" is not.
 - **Small.** If a task would produce more than ~150 lines of diff, split
   it. Review quality collapses past that point.
-- **Ordered by dependency**, and mark which tasks can run in parallel
-  within the same repo.
+- **Ordered by dependency** (`Depends on: T<n>`), and mark which tasks can
+  run in parallel.
 - **Traced.** Every task cites the `REQ-` IDs it satisfies.
-- **Test-paired.** Each task states what verifies it. Prefer a
-  property-based or table-driven test where the requirement is a rule
-  over a range of inputs rather than a single example.
-- **Repo-scoped.** A task never spans two repos. If work seems to need
-  that, it is two tasks with a `Depends on:` between them.
+- **Verifiable.** Each task names the test that confirms it, placed where
+  this repository's testing rules put it, plus a described manual check for
+  anything with a visual or interactive surface. Prefer a table-driven or
+  property-based test where the requirement is a rule over a range of
+  inputs rather than a single example. Every task additionally passes the
+  verification gate `CLAUDE.md` declares; that goes without saying and does
+  not belong in the `Verify:` line.
+- **Inside this repository.** Work that happens in another repository is
+  never a task here. A task that can't be verified until something outside
+  exists says so with `Requires: <dependency> — <what must be available>`.
+- **Tied to its contract.** A task that implements this repository's side
+  of a contract names it with `Contract: contracts/<name>.md (revision <n>)`.
+  Keep each contract's side in as few tasks as possible, so a new revision
+  lands on a small, known set of tasks.
 
 ## Format
 
 ```
-T1 — Add PaymentRetryPolicy value object
-Satisfies: REQ-2.1, REQ-2.3
-Verify: unit tests for backoff bounds; property test that delay is monotonic and capped
-Files: src/domain/payment/retry-policy.ts
+T3 — Call the retry endpoint from the checkout client
+Satisfies: REQ-2.1
+Verify: tests/checkout/retry-client.test.ts — table-driven over the status codes the contract lists
+Files: src/checkout/retry-client.ts
+Contract: contracts/payment-retry.md (revision 1)
+Requires: payment-service — the retry endpoint deployed to the development environment
+Depends on: T1
 ```
 
-## Step 3 — Initialize per-repo implementation status
+## Step 3 — Stop
 
-Once a repo's task file exists, write `specs/<NNN>-<slug>/tasks/<repo>.status`
-containing `tasks` for that repo. This is what `gate.sh` checks inside
-that repo, separately from every other repo's progress — one repo
-reaching `implementing` or `done` says nothing about the others.
-
-## Stop
-
-Once every involved repo has its task file and status file, write `tasks`
-to the top-level `.status` (this records that decomposition itself is
-complete for the whole feature). Present the full set of per-repo task
-lists. Do NOT begin implementing.
+Write `tasks` to `.status`. Present the task list. Do NOT begin
+implementing.

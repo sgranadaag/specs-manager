@@ -4,14 +4,17 @@ Status: draft
 
 ## Summary
 
-One paragraph: what this feature does and who it's for.
+One paragraph: what this feature does, who it's for, and which part of it
+this repository owns.
 
-## Repositories involved
+## External dependencies
 
-| Repository | Role |
-|---|---|
-| <repo> | <what part of the problem it owns, in plain terms> |
-| <repo> | <what part of the problem it owns, in plain terms> |
+| Dependency | What this feature expects of it | Kind |
+|---|---|---|
+| <system outside this repository> | <the interface or behavior relied on> | relied on as is |
+| <repository> | <the interface to agree on> | contract to agree — this repository is <owner / consumer>; its spec: <path, or "not yet"> |
+
+<or "none">
 
 ## Requirements
 
@@ -28,12 +31,13 @@ One paragraph: what this feature does and who it's for.
 ## Failure modes
 
 - <what happens on bad input>
-- <what happens when a dependency is unavailable>
+- <what happens when an external dependency is unavailable or answers something unexpected>
 - <what happens on partial failure>
 
 ## Non-goals
 
 - <explicitly out of scope, and why>
+- <what other repositories do for this feature — their own specs cover it>
 
 ## Open questions
 

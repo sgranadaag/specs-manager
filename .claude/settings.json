@@ -1,4 +1,7 @@
 {
+  "env": {
+    "SPEC_GATE_PATHS": "src/"
+  },
   "hooks": {
     "PreToolUse": [
       {

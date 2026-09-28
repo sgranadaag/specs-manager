@@ -5,8 +5,9 @@ Status: draft
 
 Tasks for this repository, from ./requirements.md and ./design.md. Each
 task is independently verifiable, small (~150 lines of diff or less),
-traced to requirement IDs, and paired with what verifies it. Work that
-happens in another repository is never a task here: it is an external
+traced to requirement, acceptance-criterion and business-rule IDs, and
+paired with what verifies it. Work that happens in another repository is
+never a task here: it is an external
 dependency (`Requires:`) or the other side of a contract (`Contract:`). The
 verification gate this repository's `CLAUDE.md` declares runs on every task
 and is not repeated here.
@@ -15,17 +16,23 @@ and is not repeated here.
 
 - [ ] T1 — <task title>
       Satisfies: REQ-<n>.<m>
+      Covers: AC-<n>.<m>
+      Enforces: BR-<n> <or omit when the task enforces no business rule>
       Verify: <the test that confirms it, plus a described manual check for anything visual or interactive>
       Files: <files touched>
 
 - [ ] T2 — <task title>
       Satisfies: REQ-<n>.<m>
+      Covers: AC-<n>.<m>
+      Enforces: BR-<n> <or omit when the task enforces no business rule>
       Verify: <the test that confirms it, plus a described manual check for anything visual or interactive>
       Files: <files touched>
       Depends on: T1
 
 - [ ] T3 — <task title that connects this repository to another one>
       Satisfies: REQ-<n>.<m>
+      Covers: AC-<n>.<m>
+      Enforces: BR-<n> <or omit when the task enforces no business rule>
       Verify: <the test that confirms it, plus a described manual check for anything visual or interactive>
       Files: <files touched>
       Contract: contracts/<name>.md (revision <n>)

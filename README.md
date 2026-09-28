@@ -5,57 +5,89 @@ any repository — a front end, a back end, a library — to get a structured
 requirements → design → tasks → implement → commit → verify workflow,
 enforced by a hook rather than by hoping everyone remembers the process.
 
+> **Important:** none of the theory below is mine. I just rewrote and
+> compiled the information from this technical report:
+> [Spec-Driven Development: From Code to Contract in the Age of AI Coding Assistants](https://arxiv.org/pdf/2602.00180).
+> Feel free to read it and form your own idea of what spec-driven
+> development is and how it should work.
+
 ## Why
 
-Nowadays, most of what we develop can include, or be supported by, an AI
-generator, and new technologies and modern workflows keep pushing our steps
-in that direction. If, at this point, you don't see the need to use AI in
-your development process, you are probably falling behind.
+Over time, software development has always pursued a way to manage software
+from a **single source of truth**. Many frameworks and models were born from
+this specific idea — **TDD** and **BDD**, for example. The thing is,
+documentation was written and then became outdated, and diagrams were
+designed, then changed and never updated. So, over time, the only way to
+feel confident about what the software was and how it worked was to look
+directly at the code. That's how **the code became the source of truth** in
+software companies everywhere.
 
-The thing with AI is that, the moment you start typing and asking it for a
-specific implementation, you also start writing a history of related data:
-that is called **context**. Context is unstable and gets corrupted easily,
-so preserving it and staying on the same line is the most challenging part
-of bringing AI into your development process. There is another problem:
-every time you start a new conversation, the context starts from scratch.
-If you need to roll back a change made earlier, finding it becomes very
-difficult, because the new context knows nothing about it.
+That's why **spec-driven development** came to the surface. It offers an
+alternative where we can have high trust in the documentation, and the code
+itself is just a derivative of that documentation (the **specification**).
+It comes with many advantages; the most important one is that **humans and
+machines can speak the same language**. This could only become true with
+the help of AI, which works as the catalyst that makes it possible.
 
-To solve this, a methodology called **Spec-Driven Development** appeared.
-Basically, it defines how to take advantage of AI while making sure it
-always has an up-to-date context, and it keeps a history of the changes
-made. A spec can take several shapes and be divided into different sets of
-steps; we'll talk about that below.
+> "The problem is simple: AI models are excellent at pattern completion but
+> poor at mind reading." — [Spec-Driven Development](https://arxiv.org/pdf/2602.00180) [1.A]
+
+Suppose you want to implement a way to authenticate the users of your
+platform, so you prompt any AI assistant: *"please add the authentication
+layer to my project"*. The thing here is that you are leaving a lot of
+information up in the air — information the AI needs to fulfill your
+requirement, for example:
+
+- What kind of authentication do you need?
+- Are your users confidential or public?
+- Do you need any protection against attacks over the authentication?
+- Which cryptographic algorithm do you want to use?
+
+The AI can only answer these questions by making assumptions about your
+requirement, and in most cases it builds something very complex, completely
+outside of what you asked for (that's what people call **vibe coding**).
+
+Now imagine you say instead: *"I need to add a simple authentication layer
+where my users can authenticate with a username and password. Hash their
+passwords with bcrypt, and add a honeypot and a rate limiter to the process
+to prevent attacks. Keep it simple — it's only for confidential users."*
+That's different, right? The AI has enough context and information to build
+exactly what you need and comply with all your requirements. **That's the
+power of spec-driven development**: it lets you write a complete spec of
+your requirements, so the AI doesn't have to decide on its own which way to
+go.
 
 ## Spec-driven models
 
 There are three different ways to apply this methodology:
 
-1. **Spec-first** — for me, the most useful one (at least at this point).
-   You define all the requirements, or specs, at the beginning, and then the
-   required implementation is made. Once it is, the spec is no longer
-   required: you become the owner of the code, and changing, reviewing and
-   structuring it — and leading the decisions to keep delivering features —
-   is your responsibility. At no moment do you lose control over the code;
-   the AI only plays the role of an assistant.
-2. **Spec-anchored** — similar to spec-first; the main difference is that
-   you and the AI share both the spec and the code, so both are responsible
-   for applying changes and maintaining the whole flow. The spec is designed
-   to keep changing as the process moves forward, and preserving it matters
-   because it tells us what the code does and why it was designed that way:
-   it is the source of the first implementation and holds the whole history
-   of the requirements.
-3. **Spec-as-source** — the most extreme version of the model. The AI owns
-   all the code, and you only interact with it through the spec, so the
-   spec becomes the source of truth and the application's behavior depends
-   entirely on how you define it. I think this approach could become a very
-   powerful tool once we are sure AI can build an application with all of
-   its edge cases. For now, in my opinion, AI can't manage a whole project by
-   itself, for one reason: it is very literal about your specifications and
-   can't handle things like inconsistencies and redundancies in them, so it
-   may write very good code with a complexity your need doesn't require.
+1. **Spec-first** — the developer or the team writes an initial
+   specification for the feature, often a user story or a detailed
+   requirement. The spec defines the starting point, but once the feature is
+   finished the spec drifts and the code becomes the source of truth again,
+   so any change made after the implementation is no longer reflected in the
+   initial documentation.
 
-![Levels of spec-driven development: spec-first, spec-anchored and spec-as-source, across the creation and the evolution of a feature](https://martinfowler.com/articles/exploring-gen-ai/sdd-levels.png)
+   It is particularly useful when you write new functionality with an AI
+   assistant: the specification keeps the AI from guessing characteristics
+   of the requirement.
+
+2. **Spec-anchored** — a middle point, where both the codebase and the specs
+   evolve whenever either of them changes, often coordinated by tests. This
+   approach is **more expensive** than spec-first, because it takes more
+   discipline and consistency to keep everything up to date. You can set up
+   a suite of tests that runs on every commit to keep both artifacts in
+   sync.
+
+3. **Spec-as-source** — this approach turns the traditional way of
+   developing around. The spec becomes the source of truth, and every change
+   to the code has to be made through its spec: if you want to change
+   something, you change the spec and implement everything again. This
+   approach isn't new — we already have technologies that use it, such as
+   **OpenAPI**, where you declare your endpoints in the documentation and
+   then generate them from it.
+
+![Levels of spec-driven development: spec-first, spec-anchored and spec-as-source, across the creation and the evolution of a feature](docs/image.png)
 
 *Source: [Exploring Generative AI — martinfowler.com](https://martinfowler.com/articles/exploring-gen-ai.html)*
 
@@ -104,21 +136,30 @@ This is the initial skill. Run it with a brief description of what you are
 going to build. There is also a folder,
 [`specs/source-material/`](specs/source-material/README.md), where you can
 drop documents with additional information for the requirement — data
-formats, input data, connections, initial requirements, prototypes. Claude
-reads everything you provide, asks whatever it needs to build the
-requirement, and writes the artifact **`requirements.md`** with all that
-information grouped together. You can then continue with the next step or
-make any correction you consider necessary — ask Claude to update the
-requirement, or edit it yourself.
+formats, input data, connections, initial requirements, prototypes.
 
-This step tells us **WHAT** we are going to do.
+Here we define exactly what our software has to achieve to be considered a
+quality implementation:
+
+- **acceptance criteria**;
+- **input and output conditions** (preconditions and postconditions);
+- **business rules**.
+
+Claude reads everything you provide, asks whatever it needs to build the
+requirement, and writes the artifact **`requirements.md`** with all that
+information grouped together, following the template
+[`.claude/templates/requirements.md`](.claude/templates/requirements.md),
+which defines what each requirement has to include. Once you finish your
+review, you can ask Claude to rewrite anything, or just continue.
+
+This step tells us **WHAT** the software should do.
 
 ### 2. `/spec-design` — design
 
 This step defines where the changes are going to be made: which structure,
 which technologies and which restrictions apply. It is the most technical
 step, and the point to tell Claude how to structure everything, where the
-data comes from, and which patterns and architecture to follow. If you need
+data comes from, and which patterns to follow. If you need
 a specific technology, or have to connect to a specific service, this is the
 place.
 
@@ -128,47 +169,61 @@ utils, components, styles, tests. When the feature defines an interface
 together with another repository, this step also writes the shared contract
 in `contracts/` (see [One repository, one spec](#one-repository-one-spec)).
 
-This step tells us **WHERE** Claude is going to build everything.
+Architecture and folder structure usually come from your [rules](#rules),
+so the design only records what they don't cover. Patterns, on the other
+hand, belong to each specific implementation and can change from one spec to
+the next.
+
+This step tells us **HOW** Claude is going to build everything.
 
 ### 3. `/spec-tasks` — tasks
 
-Here we take the requirements (*what*) and the design (*where*) and join
-them into a list of tasks. The tasks set the order Claude will follow to
-implement everything: depending on the process, a task can be independent or
-depend on other tasks. The artifact is **`tasks.md`**, a list of tasks
-ordered by their dependencies, which can be implemented one by one, or in
-parallel when they don't depend on each other.
+Strictly speaking, this step is part of the implementation — if you read the
+report, it doesn't exist as a separate step.
 
-This step tells us **HOW**.
+Its function is to join everything declared in the requirements step with
+the technical conditions of the design, and turn them into a list of tasks
+that Claude executes, one iteration at a time, when it starts implementing.
+Here you take control over how Claude is going to implement, and define
+things like:
+
+1. building everything **sequentially**;
+2. producing some parts of the code **in parallel**;
+3. the **dependencies** between the components or parts of the feature.
+
+The artifact is **`tasks.md`**, a list of tasks ordered by their
+dependencies, which can be implemented one by one, or in parallel when they
+don't depend on each other.
 
 ### 4. `/spec-implement` — coding
 
-This is where the magic happens. Claude builds on every previous artifact
-and starts coding, following the [rules](#rules) you defined. This point is
-fairly safe, because by now everything has been read and defined, with
-Claude's questions filling in the edge cases — a process usually called
-*refinement*.
+In a traditional approach this would be the most expensive part of the
+process; with SDD it can be mostly automated. Claude builds on every
+previous artifact and starts coding, following the [rules](#rules) you
+defined. This point is fairly safe, because by now everything has been read
+and defined, with Claude's questions filling in the edge cases — a process
+usually called *refinement*.
 
-This is also where this workflow splits from the usual process. The usual
-approach says we are not part of the coding step, so Claude can write the
-code, commit it and even push everything. In my opinion that is
-**dangerous** — I don't have that much confidence in AI yet. So I moved
-committing and delivering into a separate step (described below), and
-`/spec-implement` leaves every change **unstaged**.
+This is where the workflow becomes truly **spec-first**. The model in the
+report goes all the way until the process is finished and integrated (with
+any version control system), but I feel better taking more control over the
+code, so I deliberately decided that all the code written at this point
+stays **unstaged**. Then it's your turn to verify everything. Although I use
+this toolkit defining everything and covering every edge case I can, I
+always find something that doesn't meet the spec, or doesn't meet my
+expectations. So, most of the time, here I need to guide Claude to complete
+or organize everything as expected.
 
-Once the code is finished, it is our turn: review everything that was
-created, and refine whatever doesn't follow what we defined. Claude is very
-good at following your idea and making everything work, but, being as
-literal as described in [Spec-driven models](#spec-driven-models), it can
-make some things more complex than they need to be. The real work at this
-point is not writing code — it is understanding what Claude did and making
-sure it matches what we defined.
+As you can imagine, this review is the **expensive part** — it's where you
+take real control over the code (the spec-first approach).
+
+Once you finish this step, you can continue with `/spec-commit`.
 
 ### 5. `/spec-commit` — delivery
 
-Congratulations: you have developed a feature using the spec-driven model.
-But one step is still missing — the whole delivery process. That's why I
-created this skill, and it runs **only when you ask for it**. It:
+Here you can set up Claude to deliver your code, and define any special
+condition you need to integrate it with the base branch. In my case, this
+step:
 
 1. asks which changes go in (you can exclude any of them), which base branch
    to start from, and which branch prefix to use — proposing one based on
@@ -182,19 +237,13 @@ created this skill, and it runs **only when you ask for it**. It:
 5. offers to merge the branch into another one — for example, if you want
    to take it straight to `qa` — or to leave it as it is.
 
-Nice! Your code is now pushed to your repository.
-
 ### 6. `/spec-verify` — audit
 
-In this last step, Claude audits what was delivered against the spec and
-gives us a report:
+This is the final step, and it answers a fundamental question: **does this
+code meet the spec?** Claude audits what was delivered and reports which
+parts of the spec were really implemented, which weren't, and why.
 
-- **Coverage** — every requirement, the code that implements it, the task
-  that delivered it, and the test that covers it.
-- **Drift** — anywhere the code diverges from `design.md`.
-- **Scope** — changes that no task asked for.
-- **Contracts** — whether this repository honors every contract it shares
-  with another one.
+That's it: you've built a whole feature using the spec-first approach.
 
 ### Quality along the way
 
@@ -208,8 +257,9 @@ is safe at every moment, not just at the end.
 
 ## One repository, one spec
 
-Each repository keeps its own specs: its own requirements, design and tasks,
-for its own part of a feature. When a feature also needs changes in another
+For microservice architectures, or any architecture that involves more than
+one repository, each repository keeps its own specs: its own requirements,
+design and tasks, for its own part of a feature. When a feature also needs changes in another
 repository, that repository runs this same workflow with its own copy of the
 toolkit; here, the other side is just an **external dependency**.
 
@@ -255,10 +305,10 @@ your-repo/
     │   └── README.md
     └── 004-payment-retry/             # one folder per feature
         ├── requirements.md            # WHAT this repository has to do
-        ├── design.md                  # WHERE it is built
+        ├── design.md                  # HOW it is built
         ├── contracts/
         │   └── payment-retry.md       # only for an interface built with another repository
-        ├── tasks.md                   # HOW, step by step
+        ├── tasks.md                   # in which order, step by step
         ├── commits.md                 # what /spec-commit delivered
         └── .status                    # requirements | design | tasks | implementing | done
 ```

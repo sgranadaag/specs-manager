@@ -40,7 +40,9 @@ Read `design.md` and write `specs/<NNN>-<slug>/tasks.md` from
   it. Review quality collapses past that point.
 - **Ordered by dependency** (`Depends on: T<n>`), and mark which tasks can
   run in parallel.
-- **Traced.** Every task cites the `REQ-` IDs it satisfies.
+- **Traced.** Every task cites the `REQ-` IDs it satisfies, the `AC-`
+  criteria its test covers, and the `BR-` rules it enforces. Every `AC-`
+  and every `BR-` in requirements.md is covered by some task.
 - **Verifiable.** Each task names the test that confirms it, placed where
   this repository's testing rules put it, plus a described manual check for
   anything with a visual or interactive surface. Prefer a table-driven or
@@ -61,6 +63,8 @@ Read `design.md` and write `specs/<NNN>-<slug>/tasks.md` from
 ```
 T3 — Call the retry endpoint from the checkout client
 Satisfies: REQ-2.1
+Covers: AC-2.1, AC-2.2
+Enforces: BR-3
 Verify: tests/checkout/retry-client.test.ts — table-driven over the status codes the contract lists
 Files: src/checkout/retry-client.ts
 Contract: contracts/payment-retry.md (revision 1)

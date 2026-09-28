@@ -25,7 +25,11 @@ Spawn parallel subagents so each check runs in isolated context:
 1. **Coverage** — for every `REQ-` ID in requirements.md, find the code
    that satisfies it, the task that delivered it, and the test that names
    it. Report requirements nothing implements, and requirements no test
-   names.
+   names. Do the same for every `AC-` criterion (a test exercises its
+   Given / When / Then as written) and every `BR-` rule (the code enforces
+   it and a test breaks it on purpose). Check that each capability area's
+   postconditions are asserted by a test, and that failing a precondition
+   produces the behavior "Failure modes" describes.
 2. **Drift** — compare `design.md` against the actual implementation.
    Report anywhere the code diverges from the documented design.
 3. **Scope** — find code changed in the commits `commits.md` lists that no
@@ -39,6 +43,8 @@ Spawn parallel subagents so each check runs in isolated context:
    as unverified — never as passing.
 
 Produce a table: requirement ID → task → implementing code → test → status.
+Add one row per acceptance criterion and per business rule in the same
+shape: `AC-`/`BR-` ID → task → implementing code → test → status.
 Add one line per contract: contract → revision → this side matches →
 copies identical.
 

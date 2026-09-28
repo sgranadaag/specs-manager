@@ -96,6 +96,10 @@ note what you're skipping and why so the user can correct it):
   unexpected?
 - What are the observable acceptance criteria? (If you cannot write a
   concrete check from a criterion, it is not a criterion.)
+- What must be true before each behavior can happen (preconditions), and
+  what is guaranteed once it has happened (postconditions)?
+- What business rules govern it — limits, calculations, permissions,
+  invariants the domain imposes regardless of the screen or endpoint?
 - Are there existing patterns in this repository this must follow?
 
 If an answer is vague, ask again. A vague requirement produces confidently
@@ -117,6 +121,18 @@ Use `.claude/templates/requirements.md`. Rules:
   contract to agree with a named repository. Write "none" when there are
   none.
 - Numbered, stable IDs: `REQ-1.1`, `REQ-1.2`, …
+- Business rules go in the "Business rules" section with their own IDs
+  (`BR-1`, `BR-2`, …), stated once and cited by the requirements they
+  govern. A rule that only one requirement needs still gets a `BR-` ID if
+  it is a rule of the domain rather than a behavior of this feature. Write
+  "none" when there are none.
+- Every capability area states its preconditions and postconditions.
+  Preconditions are what must hold before; postconditions are what is
+  guaranteed after — both observable, neither an implementation step.
+- Every requirement has at least one acceptance criterion `AC-n.m` in
+  Given / When / Then form, naming the `REQ-` it verifies. Every business
+  rule is exercised by at least one criterion. A criterion is concrete
+  enough to become a test as written — specific values, not "valid input".
 - Each requirement is verifiable, about observable behavior, and about
   this repository — never a requirement another repository has to meet.
 - NO implementation detail. "Retries failed payments" is a requirement.

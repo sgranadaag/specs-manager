@@ -83,6 +83,23 @@ Use `.claude/templates/design.md`. It must contain:
    interface that is unknown or every contract not yet copied to its
    counterparts.
 
+**Architecture** and **Folder structure** are optional and conditioned on
+this repository's rules (its `CLAUDE.md` and the rules it points at, read
+in Step 1). When the rules already determine that aspect and the feature
+follows them, delete the heading: restating the rules adds nothing and
+drifts from them when they change. Include a section only for what the
+rules leave open, or where the design deliberately departs from them —
+name the rule, say why, and add the option the rules would have given to
+"Alternatives considered and rejected".
+
+**Patterns** is not conditioned on the rules: patterns belong to the
+specific implementation and can change from one spec to the next. List
+every pattern the design relies on, where it applies and why; delete the
+heading only when the feature needs none worth naming. A pattern chosen
+over another goes in "Alternatives considered and rejected" too.
+
+Never leave an optional section empty or filled with generic text.
+
 ## Step 4 — Stop
 
 Write `design` to `.status`. Present the design and explicitly ask the
